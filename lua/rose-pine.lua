@@ -295,6 +295,7 @@ local function set_highlights()
 		["@boolean"] = { link = "Boolean" },
 		["@number"] = { link = "Number" },
 		["@number.float"] = { link = "Number" },
+		["@float"] = { link = "Number" },
 
 		--- Types
 		["@type"] = { fg = palette.foam },
@@ -410,12 +411,15 @@ local function set_highlights()
 		["@lsp.type.interface"] = { link = "@interface" },
 		["@lsp.type.keyword"] = { link = "@keyword" },
 		["@lsp.type.namespace"] = { link = "@namespace" },
+		["@lsp.type.namespace.python"] = { link = "@variable" },
 		["@lsp.type.parameter"] = { link = "@parameter" },
 		["@lsp.type.property"] = { link = "@property" },
-		["@lsp.type.variable"] = { link = "@variable" },
+		["@lsp.type.variable"] = {}, -- defer to treesitter for regular variables
+		["@lsp.type.variable.svelte"] = { link = "@variable" },
 		["@lsp.typemod.function.defaultLibrary"] = { link = "@function.builtin" },
 		["@lsp.typemod.operator.injected"] = { link = "@operator" },
 		["@lsp.typemod.string.injected"] = { link = "@string" },
+		["@lsp.typemod.variable.constant"] = { link = "@constant" },
 		["@lsp.typemod.variable.defaultLibrary"] = { link = "@variable.builtin" },
 		["@lsp.typemod.variable.injected"] = { link = "@variable" },
 
@@ -727,8 +731,22 @@ local function set_highlights()
 		-- folke/noice.nvim
 		NoiceCursor = { fg = palette.highlight_high, bg = palette.text },
 
+		-- folke/trouble.nvim
+		TroubleText = { fg = palette.subtle },
+		TroubleCount = { fg = palette.iris, bg = palette.surface },
+		TroubleNormal = { fg = palette.text, bg = groups.panel },
+
 		-- echasnovski/mini.clue
 		MiniClueTitle = { bg = groups.panel, bold = styles.bold },
+
+		-- echasnovski/mini.diff
+		MiniDiffOverAdd = { fg = groups.git_add, bg = groups.git_add, blend = 20 },
+		MiniDiffOverChange = { fg = groups.git_change, bg = groups.git_change, blend = 20 },
+		MiniDiffOverContext = { bg = palette.surface },
+		MiniDiffOverDelete = { fg = groups.git_delete, bg = groups.git_delete, blend = 20 },
+		MiniDiffSignAdd = { fg = groups.git_add },
+		MiniDiffSignChange = { fg = groups.git_change },
+		MiniDiffSignDelete = { fg = groups.git_delete },
 
 		-- echasnovski/mini.pick
 		MiniPickBorderText = { bg = groups.panel },
@@ -738,6 +756,18 @@ local function set_highlights()
 		MiniIndentscopeSymbol = { fg = palette.muted },
 		MiniIndentscopeSymbolOff = { fg = palette.muted },
 
+		-- echasnovski/mini.statusline
+		MiniStatuslineDevinfo = { fg = palette.subtle, bg = palette.overlay },
+		MiniStatuslineFileinfo = { link = "MiniStatuslineDevinfo" },
+		MiniStatuslineFilename = { fg = palette.muted, bg = palette.surface },
+		MiniStatuslineInactive = { link = "MiniStatuslineFilename" },
+		MiniStatuslineModeCommand = { fg = palette.base, bg = palette.love, bold = styles.bold },
+		MiniStatuslineModeInsert = { fg = palette.base, bg = palette.foam, bold = styles.bold },
+		MiniStatuslineModeNormal = { fg = palette.base, bg = palette.rose, bold = styles.bold },
+		MiniStatuslineModeOther = { fg = palette.base, bg = palette.rose, bold = styles.bold },
+		MiniStatuslineModeReplace = { fg = palette.base, bg = palette.pine, bold = styles.bold },
+		MiniStatuslineModeVisual = { fg = palette.base, bg = palette.iris, bold = styles.bold },
+
 		-- goolord/alpha-nvim
 		AlphaButtons = { fg = palette.foam },
 		AlphaFooter = { fg = palette.gold },
@@ -746,6 +776,15 @@ local function set_highlights()
 
 		-- github/copilot.vim
 		CopilotSuggestion = { fg = palette.muted, italic = styles.italic },
+
+		-- nvim-treesitter/nvim-treesitter-context
+		TreesitterContext = { bg = palette.overlay },
+		TreesitterContextLineNumber = { fg = palette.rose, bg = palette.overlay },
+
+		-- RRethy/vim-illuminate
+		IlluminatedWordRead = { link = "LspReferenceRead" },
+		IlluminatedWordText = { link = "LspReferenceText" },
+		IlluminatedWordWrite = { link = "LspReferenceWrite" },
 	}
 	local transparency_highlights = {
 		DiagnosticVirtualTextError = { fg = groups.error },
@@ -763,6 +802,7 @@ local function set_highlights()
 		SignColumn = { fg = palette.text, bg = "NONE" },
 		StatusLine = { fg = palette.subtle, bg = "NONE" },
 		StatusLineNC = { fg = palette.muted, bg = "NONE" },
+		TabLine = { bg = "NONE", fg = palette.subtle },
 		TabLineFill = { bg = "NONE" },
 		TabLineSel = { fg = palette.text, bg = "NONE", bold = styles.bold },
 
@@ -864,9 +904,13 @@ local function set_highlights()
 
 		-- Support StatusLineTerm & StatusLineTermNC from vim
 		vim.cmd([[
-		autocmd TermOpen * if &buftype=='terminal'
-			\|setlocal winhighlight=StatusLine:StatusLineTerm,StatusLineNC:StatusLineTermNC
-			\|else|setlocal winhighlight=|endif
+		augroup rose-pine
+			autocmd!
+			autocmd TermOpen * if &buftype=='terminal'
+				\|setlocal winhighlight=StatusLine:StatusLineTerm,StatusLineNC:StatusLineTermNC
+				\|else|setlocal winhighlight=|endif
+			autocmd ColorSchemePre * autocmd! rose-pine
+		augroup END
 		]])
 	end
 end
